@@ -20,7 +20,7 @@ public class ConvertingMachineTest
 	{
 		assertEquals(-42.16, m.parse("-42.16"), 0.001);
 	}
-
+ 
 	/**
 	 * A positive number with multiple digits in both the integer and fraction portions
 	 */
