@@ -14,10 +14,10 @@ public class ConvertingMachine
 	{
 			new Edge(State.START, new DigitInputVerifier(),
 					new ValueIsDigitAction(), State.INTEGER),
-			new Edge(State.START, new MinusInputVerifier(), new NegateAction(),
-					State.INTEGER),
-			new Edge(State.START, new PlusInputVerifier(), new NoAction(),
-					State.INTEGER),
+			new Edge(State.START, new MinusInputVerifier(),
+					new NegateAction(), State.INTEGER),
+			new Edge(State.START, new PlusInputVerifier(), 
+					new NoAction(), State.INTEGER),
 			new Edge(State.START, new PeriodInputVerifier(),
 					new StartFraction(), State.DECIMAL),
 			new Edge(State.INTEGER, new DigitInputVerifier(),
@@ -26,17 +26,37 @@ public class ConvertingMachine
 					new StartFraction(), State.DECIMAL),
 			new Edge(State.DECIMAL, new DigitInputVerifier(),
 					new ContinuingFractionAction(), State.DECIMAL)
-
 	};
 
 	public double parse(String text)
 	{
+		State currentState = State.START;
+		InterimResult interim = new InterimResult(0, 1, 0);
 		
+		for(Character character : text.toCharArray()){
+			Edge nextEdge = searchForEdge(currentState, character);
+			interim = nextEdge.action.execute(interim, character);
+			currentState = nextEdge.nextState;
+		}
+		
+		return interim.getS() * interim.getV();
 	}
 
 	private Edge searchForEdge(State currentState, char ch)
 	{
+		Edge nextEdge = null;
 		
+		for(Edge e : machine){
+			if(e.currentState == currentState && e.inputVerifier.meetsCriteria(ch)){
+				nextEdge = e;
+			}
+		}
+		
+		if(nextEdge == null){
+			throw new NumberFormatException();
+		}
+		
+		return nextEdge;
 	}
 
 	private class Edge
